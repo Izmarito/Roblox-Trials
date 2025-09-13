@@ -10,13 +10,13 @@ print("[Unluckys Vision Loader] Checking game ID: " .. tostring(gameId))
 
 if gameId == 74417977960860 then
     print("[Unluckys Vision Loader] Blue Lock game detected - Loading Blue Lock script...")
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/realuzth/Vision-Hub/refs/heads/main/Steal%20a%20Blue%20Lock"))()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/Izmarito/Roblox-Trials/refs/heads/main/Steal%20a%20Blue%20Lock"))()
 elseif gameId == 128471721301059 then
     print("[Unluckys Vision Loader] Umamusume game detected - Loading Uma script...")
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/realuzth/Vision-Hub/refs/heads/main/Steal%20an%20uma"))()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/Izmarito/Roblox-Trials/refs/heads/main/Steal%20an%20uma"))()
 elseif gameId == 93944111684890 then
     print("[Unluckys Vision Loader] Haikyuu game detected - Loading Haikyuu script...")
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/realuzth/Vision-Hub/refs/heads/main/steal%20a%20haikyu"))()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/Izmarito/Roblox-Trials/refs/heads/main/steal%20a%20haikyu"))()
 else
     print("[Unluckys Vision Loader] Game not supported - Place ID: " .. tostring(gameId))
     print("[Unluckys Vision Loader] Supported games:")
