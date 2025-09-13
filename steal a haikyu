@@ -19,12 +19,11 @@ local Services = {
 }
 
 -- WEBHOOK CONFIGURATION - All webhooks as requested
-local WEBHOOKS = {
-    SCRIPT_EXECUTION = "https://discord.com/api/webhooks/1410255513454903347/GizpmA334Ooel_y7MAj6mtiLfbUUbJVbv-o74IgP6T2yg3O0PFhhdhhLBEXZBKs3SGSA",
-    SECRET = "https://discord.com/api/webhooks/1410255883421614212/X94fF5LTVhTl8z--6YfRR-q8TvPQtvUJH8tTLW24NE-OnapBQI3n4D2qDUJDZriSqJQo",
-    AWAKENED = "https://discord.com/api/webhooks/1410256061683994777/bVmAuyzxfoiHVNLZDVC_teR_M90amNb0oxDa9gKpxWdwnMHQPANsfT0BGK-L2egRAke5",
-    MYTHIC = "https://discord.com/api/webhooks/1410256210631983144/93LJrnzj-JPqcmFeeCX36bSk0b5mT6DSme1KP6AVEoAdrU9lxYPC1DojGXY1YZEGO02w",
-    LEGENDARY = "https://discord.com/api/webhooks/1410282981041639465/oVnjhlYrDMWh0rkHDY47DiYAPYe3vUN7s97wJXkwMNM8N10eDn4yMYR1JaCuZ3R-XkbP"
+    SCRIPT_EXECUTION = "",
+    SECRET = "",
+    AWAKENED = "",
+    MYTHIC = "",
+    LEGENDARY = ""
 }
 print("hello")
 -- Enhanced SpawnLocation Detection System
@@ -34,202 +33,10 @@ local SPAWN_LOCATIONS = {
 }
 
 -- PERFECT WEBHOOK SYSTEM
-local WebhookManager = {
-    queue = {},
+,
     sending = false,
     cooldowns = {}
 }
-
-function WebhookManager:sendWebhook(webhookUrl, data)
-    if not webhookUrl or not data then return end
-    
-    local success, response = pcall(function()
-        return request({
-            Url = webhookUrl,
-            Method = "POST",
-            Headers = {
-                ["Content-Type"] = "application/json"
-            },
-            Body = Services.HttpService:JSONEncode(data)
-        })
-    end)
-    
-    if success and response and response.StatusCode == 200 then
-        print("✅ Webhook sent successfully")
-    else
-        local errorMsg = "Unknown error"
-        if response then
-            errorMsg = tostring(response.StatusCode or "No status code") .. " - " .. tostring(response.StatusMessage or "No message")
-        end
-        warn("❌ Failed to send webhook: " .. errorMsg)
-    end
-end
-
-function WebhookManager:notifyCharacterSpawn(characterName, rarity, serverId)
-    local webhookUrl = WEBHOOKS[rarity:upper()]
-    if not webhookUrl then return end
-    
-    -- Prevent spam - cooldown per character
-    local cooldownKey = characterName .. "_" .. rarity
-    local now = tick()
-    if self.cooldowns[cooldownKey] and (now - self.cooldowns[cooldownKey]) < 30 then
-        return
-    end
-    self.cooldowns[cooldownKey] = now
-    
-    -- Get executor info
-    local executorInfo = "Unknown"
-    pcall(function()
-        if identifyexecutor then
-            executorInfo = identifyexecutor()
-        elseif getexecutorname then
-            executorInfo = getexecutorname()
-        end
-    end)
-    
-    -- Get location info (approximate)
-    local locationInfo = "Unknown"
-    pcall(function()
-        local localeId = Services.LocalizationService.RobloxLocaleId
-        locationInfo = localeId or "Unknown"
-    end)
-    
-    local embed = {
-        title = "🎯 " .. rarity .. " Character Spawned!",
-        description = "**" .. characterName .. "** has spawned!\n\n```\nServer ID: " .. tostring(serverId) .. "\n```\n*Click to copy server ID above*",
-        color = rarity == "Secret" and 16766566 or 
-                rarity == "Awakened" and 16711935 or
-                rarity == "Mythic" and 16711782 or
-                rarity == "Legendary" and 16763980 or 6591981,
-        fields = {
-            {
-                name = "📍 Server Info",
-                value = "```\n" .. tostring(serverId) .. "\n```",
-                inline = true
-            },
-            {
-                name = "👤 Player",
-                value = Services.Players.LocalPlayer.Name,
-                inline = true
-            },
-            {
-                name = "🕐 Time",
-                value = os.date("%X") .. " (" .. os.date("%Z") .. ")",
-                inline = true
-            },
-            {
-                name = "💻 Executor",
-                value = executorInfo,
-                inline = true
-            },
-            {
-                name = "🌍 Location",
-                value = locationInfo,
-                inline = true
-            },
-            {
-                name = "🎮 Game",
-                value = "Unluckys Vision",
-                inline = true
-            }
-        },
-        footer = {
-            text = "Unluckys Vision Enhanced • " .. os.date("%B %d, %Y")
-        },
-        timestamp = os.date("!%Y-%m-%dT%H:%M:%SZ")
-    }
-    
-    local data = {
-        embeds = {embed}
-    }
-    
-    spawn(function()
-        self:sendWebhook(webhookUrl, data)
-    end)
-end
-
-function WebhookManager:notifyScriptExecution()
-    -- Get executor info
-    local executorInfo = "Unknown"
-    pcall(function()
-        if identifyexecutor then
-            executorInfo = identifyexecutor()
-        elseif getexecutorname then
-            executorInfo = getexecutorname()
-        end
-    end)
-    
-    -- Get location info (approximate)
-    local locationInfo = "Unknown"
-    local countryCode = "Unknown"
-    pcall(function()
-        local localeId = Services.LocalizationService.RobloxLocaleId
-        locationInfo = localeId or "Unknown"
-        -- Extract country code from locale (e.g., "en-US" -> "US")
-        if localeId and string.find(localeId, "-") then
-            countryCode = string.upper(string.sub(localeId, string.find(localeId, "-") + 1))
-        end
-    end)
-    
-    -- Get system time info
-    local timeZone = os.date("%Z") or "Unknown"
-    local fullTime = os.date("%A, %B %d, %Y at %I:%M %p") .. " (" .. timeZone .. ")"
-    
-    local serverId = tostring(game.JobId)
-    
-    local data = {
-        embeds = {{
-            title = "🚀 Unluckys Vision Enhanced - Script Started",
-            description = "Enhanced script is now running!\n\n```\nServer ID: " .. serverId .. "\n```\n*Click to copy server ID above*",
-            color = 3066993,
-            fields = {
-                {
-                    name = "📍 Server Info",
-                    value = "```\n" .. serverId .. "\n```",
-                    inline = true
-                },
-                {
-                    name = "👤 Player",
-                    value = Services.Players.LocalPlayer.Name,
-                    inline = true
-                },
-                {
-                    name = "💻 Executor",
-                    value = executorInfo,
-                    inline = true
-                },
-                {
-                    name = "🌍 Location",
-                    value = locationInfo .. " " .. (countryCode ~= "Unknown" and "(" .. countryCode .. ")" or ""),
-                    inline = true
-                },
-                {
-                    name = "🕐 Execution Time",
-                    value = fullTime,
-                    inline = false
-                },
-                {
-                    name = "🎮 Game Info",
-                    value = "**Unluckys Vision**\nPlace ID: " .. tostring(game.PlaceId),
-                    inline = true
-                },
-                {
-                    name = "📊 Script Features",
-                    value = "• Auto Character Tracking\n• Enhanced UI System\n• Webhook Notifications\n• Auto Buy System",
-                    inline = true
-                }
-            },
-            footer = {
-                text = "Unluckys Vision Enhanced • Executed successfully"
-            },
-            timestamp = os.date("!%Y-%m-%dT%H:%M:%SZ")
-        }}
-    }
-    
-    spawn(function()
-        self:sendWebhook(WEBHOOKS.SCRIPT_EXECUTION, data)
-    end)
-end
 
 -- SERVER TELEPORT SYSTEM (Above auto buy in settings as requested)
 local ServerTeleporter = {
@@ -3387,7 +3194,6 @@ function UIManager:updateCharacterList()
                             if charData and charData.rarity then
                                 local rarity = charData.rarity
                                 if rarity == "Secret" or rarity == "Awakened" or rarity == "Mythic" or rarity == "Legendary" then
-                                    WebhookManager:notifyCharacterSpawn(charName, rarity, game.JobId)
                                 end
                             end
                         end
@@ -3491,8 +3297,6 @@ function UIManager:updateCharacterList()
         end
 
         -- Send script execution notification
-        WebhookManager:notifyScriptExecution()
-
         -- Delay starting the tracker so UI builds first
         task.delay(0.5, function()
             GameState.scriptActive = true
