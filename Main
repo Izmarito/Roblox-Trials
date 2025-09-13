@@ -1,0 +1,26 @@
+-- Unluckys Vision Loader v1.0
+-- Multi-game loader for Unluckys Vision scripts
+-- Created by uzth
+
+repeat task.wait() until game:IsLoaded()
+
+local gameId = game.PlaceId
+
+print("[Unluckys Vision Loader] Checking game ID: " .. tostring(gameId))
+
+if gameId == 74417977960860 then
+    print("[Unluckys Vision Loader] Blue Lock game detected - Loading Blue Lock script...")
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/realuzth/Vision-Hub/refs/heads/main/Steal%20a%20Blue%20Lock"))()
+elseif gameId == 128471721301059 then
+    print("[Unluckys Vision Loader] Umamusume game detected - Loading Uma script...")
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/realuzth/Vision-Hub/refs/heads/main/Steal%20an%20uma"))()
+elseif gameId == 93944111684890 then
+    print("[Unluckys Vision Loader] Haikyuu game detected - Loading Haikyuu script...")
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/realuzth/Vision-Hub/refs/heads/main/steal%20a%20haikyu"))()
+else
+    print("[Unluckys Vision Loader] Game not supported - Place ID: " .. tostring(gameId))
+    print("[Unluckys Vision Loader] Supported games:")
+    print("  - Blue Lock: 74417977960860")
+    print("  - Umamusume: 128471721301059") 
+    print("  - Haikyuu: 93944111684890")
+end
